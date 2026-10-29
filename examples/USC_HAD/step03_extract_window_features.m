@@ -17,10 +17,18 @@ load(source,'records','fs','classNames');
 %% STUDENT EXPERIMENT PARAMETERS
 windowSeconds = 3.0;     % How many seconds are used to make one decision?
 hopSeconds = 0.5;        % How often is a new decision requested?
-bandHz = [0.8 3.0];      % Candidate frequency band, NOT a universal choice
+bandHz = [0.8 3.0];      % ORIGINAL feature #2 (retain for comparison)
+% EIGHT additional acceleration-magnitude PSD bands; exploratory choices.
+% High-frequency bands may include impacts and sensor noise.
+% The 0.3-0.8 Hz band is coarse with a 2-s Welch segment.
+extraBandsHz = [0.3 0.8; 0.8 1.5; 1.5 3.0; 3.0 5.0; ...
+                5.0 8.0; 8.0 12.0; 12.0 20.0; 20.0 40.0];
 N = round(windowSeconds*fs);
 H = round(hopSeconds*fs);
-assert(N>1 && H>=1 && bandHz(2)<fs/2, ...
+assert(N>1 && H>=1 && bandHz(2)<fs/2 && ...
+    all(extraBandsHz(:,1)>0) && ...
+    all(extraBandsHz(:,1)<extraBandsHz(:,2)) && ...
+    all(extraBandsHz(:,2)<fs/2), ...
     'Check window, hop and frequency-band settings.');
 assert(exist('pwelch','file')==2, ...
     'Signal Processing Toolbox (pwelch) is required.');
@@ -37,6 +45,13 @@ featureNames = { ...
     'Gyro Y mean (deg/s)', ...
     'Gyro Z mean (deg/s)' ...
 };
+% Keep existing indices 1-8 UNCHANGED for reproducible SVM comparisons.
+% New PSD band-power features become columns 9-16.
+for b=1:size(extraBandsHz,1)
+    featureNames{end+1} = sprintf( ...
+        'Accel PSD %.1f-%.1f Hz power (g^2)', ...
+        extraBandsHz(b,1),extraBandsHz(b,2));
+end
 
 % Sufficient PSD segment duration for a short analysis window.
 welchN = min(N,round(2*fs));
@@ -82,9 +97,16 @@ for r = 1:numel(records)
         keepBand = f>=bandHz(1) & f<=bandHz(2);
         bandPower = trapz(f(keepBand),Pxx(keepBand));
 
+        % Eight EXTRA frequency-band powers, all from the SAME PSD.
+        extraPower = zeros(1,size(extraBandsHz,1));
+        for b=1:size(extraBandsHz,1)
+            keep = f>=extraBandsHz(b,1) & f<=extraBandsHz(b,2);
+            extraPower(b) = trapz(f(keep),Pxx(keep));
+        end
+
         k = k+1;
         X(k,:) = [std(aMag),bandPower, ...
-            sqrt(mean(g.^2,1)),mean(g,1)];
+            sqrt(mean(g.^2,1)),mean(g,1),extraPower];
         Y(k) = records(r).label;
         subjectID(k) = records(r).subject;
         trialID(k) = records(r).trial;
@@ -102,7 +124,9 @@ assert(any(Y==0) && any(Y==1),'Both activities must have valid windows.');
 outPath = fullfile(scriptFolder,'ME3310_USC_HAD_WindowFeatures.mat');
 save(outPath,'X','Y','featureNames','classNames','subjectID', ...
     'trialID','recordID','windowEndTime','windowSeconds', ...
-    'hopSeconds','bandHz','fs');
+    'hopSeconds','bandHz','extraBandsHz','fs');
+fprintf('Feature count: %d (%d original + %d additional PSD bands).\n', ...
+    size(X,2),8,size(extraBandsHz,1));
 fprintf('Extracted %d windows from %d original trials.\n', ...
     size(X,1),numel(unique(recordID)));
 fprintf('Upstairs windows: %d, Downstairs windows: %d\n', ...
@@ -125,6 +149,8 @@ legend('Location','best'); grid on;
 
 %% Engineering questions
 % 1. Are these TWO features genuinely discriminative for Up vs Down?
-% 2. Try feature 3, 4, 5 (gyro RMS) or 6, 7, 8 (signed gyro mean).
-% 3. Compare windowSeconds = 1.5, 3, and 5. Is PSD useful for all?
-% 4. Does creating more overlapping windows create more INDEPENDENT data?
+% 2. Compare the original 8 features with all 16. Does more power
+%    spectrum information improve performance across NEW subjects?
+% 3. Some bands overlap original feature 2; correlation and noise matter.
+% 4. Compare windowSeconds = 1.5, 3, and 5. Is PSD useful for all?
+% 5. Does creating more overlapping windows create more INDEPENDENT data?
