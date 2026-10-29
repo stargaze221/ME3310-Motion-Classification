@@ -34,7 +34,7 @@ Or open the files in the MATLAB Editor and run them individually in order.
 | step03_extract_window_features.m | Use 3-second windows and 0.5-second hop to extract 8 original plus 8 PSD band-power features |
 | step04_train_linear_svm.m | Train a two-feature linear SVM, display boundary, test on **held-out subjects** and plot confusion matrix |
 | step05_compare_power_ratio.m | Compare four feature choices with leave-one-training-subject-out CV; contrast absolute power with log high/low ratio |
-| step06_compare_dnn.m | Compare SVM-2, SVM-8, SVM-16, DNN-8, and DNN-16 using identical subject-wise evaluation |
+| step06_compare_dnn.m | Compare five SVM/DNN configurations with both window- and trajectory-level accuracy |
 
 **Generated files stay local (ignored by Git):**
 
@@ -61,11 +61,13 @@ The log-ratio was motivated by **subject-level relative PSD differences**, but t
 
 ## Multi-subject DNN experiment
 
-**After pulling the updated scripts, rerun step03** so the local feature MAT file has 16 columns. Then run `step06_compare_dnn.m`. It evaluates 5 configurations: SVM-2, SVM-8, SVM-16, DNN-8, and DNN-16, with the exact same subject-wise train/validation folds. Both DNN variants use a two-hidden-layer MLP fitted with MATLAB `fitcnet` (Statistics and Machine Learning Toolbox), not a raw-signal 1D CNN. Comparing 8 versus 16 features within the same model tests whether additional PSD bands help. The four previously seen subjects are a **secondary diagnostic**, not a fresh test.
+**After pulling the updated scripts, rerun step03** so the local feature MAT file has 16 columns. Then run `step06_compare_dnn.m`. It evaluates 5 configurations: SVM-2, SVM-8, SVM-16, DNN-8, and DNN-16, with the exact same subject-wise train/validation folds. Both DNN variants use a two-hidden-layer MLP fitted with MATLAB `fitcnet` (Statistics and Machine Learning Toolbox), not a raw-signal 1D CNN. Comparing 8 versus 16 features within the same model tests whether additional PSD bands help. **Two evaluation units are now reported:** (1) each overlapping 3-second window, and (2) each complete original trial / trajectory identified by `recordID`. For trajectories, the script aggregates window labels by majority vote, resolving exact ties with the mean model-score difference. It reports raw trajectory accuracy and per-subject trajectory-balanced accuracy, plus a comparison graph and trajectory confusion matrix. Both metrics keep entire subjects held out in each CV fold. The four previously seen subjects are a **secondary diagnostic**, not a fresh test.
 
 ## Important experimental limitations
 
 - Overlapping windows from the same trial are **correlated**. They are not independent experimental repetitions.
+- **Trajectory = one original USC-HAD trial** (single fixed activity). Majority voting assigns one label per trial AFTER the whole trial is recorded, so this is offline trial recognition, **not** online motion detection or detection-delay measurement.
+- The average trajectory-balanced accuracy is the average of subject-specific balanced accuracies, not the percentage of all windows or all trials pooled together.
 - Script 04 reserves **entire subjects** for testing rather than mixing windows from the same person across training and test sets.
 - The reported window accuracy is not a confidence interval. Examine variation by subject and acquire more independent trials.
 - USC-HAD trials each contain **one** activity. The optional time-varying prediction plot does **not** demonstrate real Upstairs-to-Downstairs transitions.
