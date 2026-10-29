@@ -49,6 +49,27 @@ The [USC-HAD example](examples/USC_HAD/README.md) uses official wearable IMU rec
 | [step04_train_linear_svm.m](examples/USC_HAD/step04_train_linear_svm.m) | Two-feature linear SVM, decision boundary, held-out-subject evaluation |
 | [step05_compare_power_ratio.m](examples/USC_HAD/step05_compare_power_ratio.m) | Compare STD, absolute PSD band powers, and log high/low power ratio with subject-wise CV |
 | [step06_compare_dnn.m](examples/USC_HAD/step06_compare_dnn.m) | Compare five SVM/DNN models at both 3-second window and entire-trial (trajectory) levels |
+| [step07_prepare_five_motions.m](examples/USC_HAD/step07_prepare_five_motions.m) | Reuse the USC-HAD archive to prepare five verified classes, retaining original trials |
+| [step08_extract_five_motion_features.m](examples/USC_HAD/step08_extract_five_motion_features.m) | Reuse identical 16 IMU features with numeric class labels 0-4 |
+| [step09_train_five_motion_svm.m](examples/USC_HAD/step09_train_five_motion_svm.m) | Multiclass one-versus-one linear SVM, LOSO CV, window and trial confusion matrices |
+| [step10_demo_five_motion_sequence.m](examples/USC_HAD/step10_demo_five_motion_sequence.m) | Explicitly artificial montage of five-motion predictions and simple causal smoothing |
+
+## Multi-motion extension (five classes)
+
+USC-HAD activity IDs **1, 4, 5, 6, 9** map to labels **0-4**: Walking Forward, Upstairs, Downstairs, Running Forward and Standing. The original two-motion examples above are preserved.
+
+Run these scripts after updating your checkout; step07 reuses the already-downloaded official data when available:
+
+```matlab
+repo = gitrepo;
+pull(repo);
+run("examples/USC_HAD/step07_prepare_five_motions.m")
+run("examples/USC_HAD/step08_extract_five_motion_features.m")
+run("examples/USC_HAD/step09_train_five_motion_svm.m")
+run("examples/USC_HAD/step10_demo_five_motion_sequence.m") % Optional illustration
+```
+
+Script 09 compares five-class ECOC linear SVMs with **8 and 16 features**, evaluates **five-class macro recall** (balanced accuracy) separately for overlapping windows and original trial majority votes, and reports confusion matrices. It holds out entire subjects for each training-group CV fold. The four previously inspected subjects are explicitly labeled as a diagnostic, not an untouched test. Script 10 concatenates **window features from separate trials**, NOT physical sensor streams: it is only a pseudo-stream illustration of temporal smoothing, with artificial join boundaries. A genuine detector requires a continuously measured and time-annotated activity sequence.
 
 **Follow-up power-ratio experiment:** Run script 05 after script 01; it independently extracts the spectral features from the prepared USC-HAD data. It reports leave-one-training-subject-out cross-validation for four candidates and, optionally, a separately labeled diagnostic on the four already inspected subjects. Such a reused holdout is NOT a fresh test.
 
