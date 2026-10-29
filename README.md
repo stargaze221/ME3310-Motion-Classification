@@ -20,10 +20,10 @@ cd(repo.WorkingFolder)
 Then, from the repository root, run the example scripts **in order**:
 
 ```matlab
-run("examples/USC_HAD/01_prepare_up_down.m")
-run("examples/USC_HAD/02_preview_up_down.m")
-run("examples/USC_HAD/03_extract_window_features.m")
-run("examples/USC_HAD/04_train_linear_svm.m")
+run("examples/USC_HAD/step01_prepare_up_down.m")
+run("examples/USC_HAD/step02_preview_up_down.m")
+run("examples/USC_HAD/step03_extract_window_features.m")
+run("examples/USC_HAD/step04_train_linear_svm.m")
 ```
 
 Already cloned the repository? From the clone's root directory, update it with `repo = gitrepo; pull(repo);` instead of cloning again. If MATLAB's Git functions are unavailable, use a normal Git client or download the repository ZIP.
@@ -39,10 +39,10 @@ The [USC-HAD example](examples/USC_HAD/README.md) uses official wearable IMU rec
 
 | Script | What you see or do |
 |---|---|
-| [01_prepare_up_down.m](examples/USC_HAD/01_prepare_up_down.m) | Download/reuse the official archive, prepare original complete trials |
-| [02_preview_up_down.m](examples/USC_HAD/02_preview_up_down.m) | Raw IMU signals, acceleration magnitude, Welch power spectral density |
-| [03_extract_window_features.m](examples/USC_HAD/03_extract_window_features.m) | Sliding windows, time- and frequency-domain features, scatter plot |
-| [04_train_linear_svm.m](examples/USC_HAD/04_train_linear_svm.m) | Two-feature linear SVM, decision boundary, held-out-subject evaluation |
+| [step01_prepare_up_down.m](examples/USC_HAD/step01_prepare_up_down.m) | Download/reuse the official archive, prepare original complete trials |
+| [step02_preview_up_down.m](examples/USC_HAD/step02_preview_up_down.m) | Raw IMU signals, acceleration magnitude, Welch power spectral density |
+| [step03_extract_window_features.m](examples/USC_HAD/step03_extract_window_features.m) | Sliding windows, time- and frequency-domain features, scatter plot |
+| [step04_train_linear_svm.m](examples/USC_HAD/step04_train_linear_svm.m) | Two-feature linear SVM, decision boundary, held-out-subject evaluation |
 
 **MATLAB requirements:** base MATLAB; Signal Processing Toolbox for `pwelch`; Statistics and Machine Learning Toolbox for `fitcsvm`. Scripts have not yet been runtime-verified in a MATLAB installation.
 
