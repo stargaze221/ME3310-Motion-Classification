@@ -184,6 +184,8 @@ confusionchart(trueCategories,predCategories, ...
     'RowSummary','row-normalized');
 
 %% Optional diagnostic on four previously inspected subjects
+diagWindow=[];
+diagTrial=[];
 if showPreviouslySeenSubjects
     fprintf('\nDIAGNOSTIC on PREVIOUSLY SEEN subjects (NOT A FRESH TEST):\n');
     prevTruth=Y(previousMask);
