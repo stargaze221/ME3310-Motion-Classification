@@ -2,6 +2,24 @@
 
 This folder provides a local MAT-file inspection and standardization layer for student measurements; it is NOT a new classifier. It was developed against two sample files named trial_T01.mat and trial_T02.mat (not committed to GitHub).
 
+## Week 11 / Canvas Page 01: reproducible MATLAB commands
+
+The function [week11_01_feature_demo.m](week11_01_feature_demo.m) is linked to the lecture *From Time Series to Meaningful Features*. Run from the repository root:
+
+```matlab
+repo = gitrepo;
+pull(repo);
+addpath("examples/Student_IMU");
+week11_01_feature_demo("signal");
+R = week11_01_feature_demo("time");
+R = week11_01_feature_demo("fft");
+R = week11_01_feature_demo("psd");
+R = week11_01_feature_demo("bands");
+R = week11_01_feature_demo("windows");
+```
+
+The default example is a **synthetic 20 Hz six-axis signal**; it must not be presented as real student results. To inspect a real local MAT recording, use `R = week11_01_feature_demo("all","C:\\path\\to\\trial_T01.mat");`. The function keeps missing gyro channels empty. For 20 Hz sampling, examine the **0.5-3 Hz** and **3-8 Hz** bands (exploratory); frequency content above the 10 Hz Nyquist frequency cannot be recovered by these data. PSD and band-power sections require Signal Processing Toolbox. The demo is instructional, not a classifier.
+
 ## Run
 
 From the repository root, use MATLAB:
