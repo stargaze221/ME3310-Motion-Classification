@@ -45,14 +45,14 @@ The [USC-HAD example](examples/USC_HAD/README.md) uses official wearable IMU rec
 | [step01_prepare_up_down.m](examples/USC_HAD/step01_prepare_up_down.m) | Download/reuse the official archive, prepare original complete trials |
 | [step02_preview_up_down.m](examples/USC_HAD/step02_preview_up_down.m) | Raw IMU signals, acceleration magnitude, Welch power spectral density |
 | [step02b_explore_full_psd.m](examples/USC_HAD/step02b_explore_full_psd.m) | Full-frequency PSD, normalized spectral shape, and subject-by-subject band comparison (training subjects only) |
-| [step03_extract_window_features.m](examples/USC_HAD/step03_extract_window_features.m) | Sliding windows, time- and frequency-domain features, scatter plot |
+| [step03_extract_window_features.m](examples/USC_HAD/step03_extract_window_features.m) | Sliding windows with 8 original features plus 8 additional PSD band powers (16 total) |
 | [step04_train_linear_svm.m](examples/USC_HAD/step04_train_linear_svm.m) | Two-feature linear SVM, decision boundary, held-out-subject evaluation |
 | [step05_compare_power_ratio.m](examples/USC_HAD/step05_compare_power_ratio.m) | Compare STD, absolute PSD band powers, and log high/low power ratio with subject-wise CV |
-| [step06_compare_dnn.m](examples/USC_HAD/step06_compare_dnn.m) | Compare 2-feature linear SVM, 8-feature linear SVM, and 8-feature nonlinear DNN (MLP) |
+| [step06_compare_dnn.m](examples/USC_HAD/step06_compare_dnn.m) | Compare SVM-2, SVM-8, SVM-16, DNN-8, DNN-16 with subject-wise CV |
 
 **Follow-up power-ratio experiment:** Run script 05 after script 01; it independently extracts the spectral features from the prepared USC-HAD data. It reports leave-one-training-subject-out cross-validation for four candidates and, optionally, a separately labeled diagnostic on the four already inspected subjects. Such a reused holdout is NOT a fresh test.
 
-**Multi-subject neural network experiment:** After script 03, script 06 uses the same 8 summary features for an 8-feature linear SVM and a two-hidden-layer neural network using `fitcnet`. It reports leave-one-training-subject-out balanced accuracy for fair model comparison. The previously inspected four subjects are labeled as a diagnostic, not a new untouched test.
+**Multi-subject neural network experiment:** Rerun the UPDATED script 03 to regenerate `ME3310_USC_HAD_WindowFeatures.mat` with **16 features**, then run script 06. It now compares five configurations: linear SVM with 2, 8, or 16 features, and a two-hidden-layer `fitcnet` neural network with 8 or 16 features. It reports leave-one-training-subject-out balanced accuracy and labels the four previously inspected subjects as a diagnostic, not a new untouched test. Added acceleration magnitude PSD bands: **0.3-0.8, 0.8-1.5, 1.5-3, 3-5, 5-8, 8-12, 12-20, 20-40 Hz**. The original 0.8-3 Hz band (feature 2) remains unchanged, so some PSD features are correlated.
 
 Inspect the full PSD before choosing a band. The initial 0.8-3 Hz band in script 03 is only a demonstration; change it based on training-subject evidence and preserve held-out subjects for validation.
 
