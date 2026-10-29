@@ -12,7 +12,8 @@ From the root of your [ME3310-Motion-Classification](https://github.com/stargaze
 repo = gitrepo;
 pull(repo);
 run("examples/USC_HAD/step01_prepare_up_down.m");
-run("examples/USC_HAD/step02_preview_up_down.m");
+run("examples/USC_HAD/step02_preview_up_down.m")
+run("examples/USC_HAD/step02b_explore_full_psd.m");
 run("examples/USC_HAD/step03_extract_window_features.m");
 run("examples/USC_HAD/step04_train_linear_svm.m");
 ~~~
@@ -27,6 +28,7 @@ Or open the files in the MATLAB Editor and run them individually in order.
 |---|---|
 | step01_prepare_up_down.m | Obtain official USC-HAD and extract **all original activity-4 and activity-5 trials** |
 | step02_preview_up_down.m | Plot raw accelerometer/gyroscope, magnitude and complete-trial Welch PSD |
+| step02b_explore_full_psd.m | Full 0-50 Hz PSD, 0-10 Hz zoom, normalized PSD shape and subject-by-subject band consistency |
 | step03_extract_window_features.m | Use 3-second windows, 0.5-second hop and compute eight time/PSD features |
 | step04_train_linear_svm.m | Train a two-feature linear SVM, display boundary, test on **held-out subjects** and plot confusion matrix |
 
@@ -43,7 +45,7 @@ Or open the files in the MATLAB Editor and run them individually in order.
 - <code>records(i).gyro</code>: N-by-3 angular velocity, **deg/s**
 - <code>records(i).t</code>: seconds, from zero; sample rate <code>fs = 100 Hz</code>
 
-The feature script calculates: acceleration-magnitude standard deviation; its 0.8–3 Hz PSD band power; X/Y/Z gyroscope RMS; and X/Y/Z signed gyroscope means. The frequency band is an adjustable experimental choice, not a universal constant.
+The feature script calculates: acceleration-magnitude standard deviation; its 0.8–3 Hz PSD band power; X/Y/Z gyroscope RMS; and X/Y/Z signed gyroscope means. The frequency band is an adjustable experimental choice, not a universal constant. **Run step02b to inspect the entire PSD before selecting a band.** It uses the training subjects only, weights subjects equally, and visualizes candidate bands; the resulting plots are exploratory, NOT final test accuracy.
 
 Script 04 initially uses **two features** (acceleration standard deviation and band power) so a **straight-line decision boundary** can be visualized. Change <code>featureIdx = [1 2]</code> to test other features. Choosing features based on held-out test results would bias the evaluation; treat such exploration as preliminary and reserve an independent evaluation set.
 
