@@ -85,6 +85,25 @@ Inspect the full PSD before choosing a band. The initial 0.8-3 Hz band in script
 
 [Student data inspection tools](examples/Student_IMU/README.md) support actual ME 3310 MAT trial files with elapsed time and optional 3-axis acceleration and gyroscope measurements. Use [step01_inspect_student_mat.m](examples/Student_IMU/step01_inspect_student_mat.m) to select local recordings, inspect sampling, channels, time traces and PSD. [load_student_trial.m](examples/Student_IMU/load_student_trial.m) returns a standard trial structure without inventing unavailable sensor channels or class labels. The initial uploaded examples are **accelerometer-only at 20 Hz**, requiring a different feature set from the USC-HAD 100-Hz six-axis model. No student data are committed.
 
+## Week 11 lecture: Time series, FFT and PSD (Page 01)
+
+The [Week 11 student-facing MATLAB demo](examples/Student_IMU/week11_01_feature_demo.m) supports the Canvas page **01 — From Time Series to Meaningful Features**. It uses 20-Hz labeled **synthetic** six-axis signals by default, or reads a real local MAT trial via the existing loader. Each subsection has a matching function call:
+
+```matlab
+repo = gitrepo;
+pull(repo);
+addpath("examples/Student_IMU");
+week11_01_feature_demo("signal");   % raw accelerometer/gyro axes
+R = week11_01_feature_demo("time");   % mean, STD, RMS, peak, jerk
+R = week11_01_feature_demo("fft");    % FFT magnitude versus PSD
+R = week11_01_feature_demo("psd");    % Welch versus periodogram
+R = week11_01_feature_demo("bands");  % 0.5-3 and 3-8 Hz power
+R = week11_01_feature_demo("windows");% overlapping window dependence
+R = week11_01_feature_demo("all","C:\\path\\to\\trial_T01.mat");
+```
+
+The real T01/T02 files previously available were **acceleration only**; the script does not fabricate gyro readings. For next student measurements, collect acceleration XYZ + gyroscope XYZ at nominal 20 Hz and verify channels and units. Use **three independent Target and three independent Confusing trials** for repeatability; do not treat overlapping windows as independent experiments. A MATLAB installation and Signal Processing Toolbox (for PSD) are needed. Code has been reviewed statically, not executed in a MATLAB runtime.
+
 ## Why this is an Experimental Methods project
 
 A machine-learning classifier can be trained with very few distinct experiments, but its apparent accuracy may be misleading. Overlapping windows from a single IMU trial are **not independent replications**. These examples preserve subject/trial identity and reserve entire subjects for testing instead of randomly mixing nearly duplicate windows across training and test sets.
