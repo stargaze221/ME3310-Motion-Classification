@@ -8,7 +8,8 @@
 % Plots:
 %  Figure 1. Full 0-50 Hz average PSD: accel magnitude and 3 gyro axes.
 %  Figure 2. Acceleration PSD zoom (0-10 Hz) and Down/Up PSD ratio.
-%  Figure 3. Subject-by-subject Down/Up band-power ratios for candidate
+%  Figure 3. PSD normalized per subject: compare spectral shape.
+%  Figure 4. Subject-by-subject Down/Up band-power ratios for candidate
 %            bands. This is EXPLORATION, not classifier accuracy.
 %
 % Data integrity:
@@ -185,7 +186,41 @@ ylabel('10 log10(P_{down}/P_{up}) (dB)');
 title('Positive: more downstairs power; negative: more upstairs power');
 grid on;
 
-%% Figure 3: Does the direction of the difference agree across subjects?
+%% Figure 3: Normalize PSD to compare FREQUENCY SHAPE, not total power
+% Each subject's spectrum is normalized to its own integrated power,
+% BEFORE averaging. This prevents a high-amplitude subject dominating.
+normalizedSubjectPSD = nan(nFreq,2,nSubjects);
+for si = 1:nSubjects
+    for ci = 1:2
+        p = subjectPSD(:,1,ci,si);
+        if all(isfinite(p))
+            totalPower = trapz(frequency,p);
+            if totalPower>0
+                normalizedSubjectPSD(:,ci,si) = p/totalPower;
+            end
+        end
+    end
+end
+
+normalizedUp = mean(reshape( ...
+    normalizedSubjectPSD(:,1,isTraining),nFreq,[]),2,'omitnan');
+normalizedDown = mean(reshape( ...
+    normalizedSubjectPSD(:,2,isTraining),nFreq,[]),2,'omitnan');
+
+figure('Name','Normalized acceleration PSD: compare shape');
+plot(frequency,normalizedUp,'LineWidth',1.5);
+hold on;
+plot(frequency,normalizedDown,'LineWidth',1.5);
+xline(existingBandHz(1),'k--');
+xline(existingBandHz(2),'k--');
+xlim([0 zoomMaxHz]);
+xlabel('Frequency (Hz)');
+ylabel('Normalized PSD (1/Hz)');
+title('PSD shape only: each subject normalized by total power');
+legend(classNames,'Location','best');
+grid on;
+
+%% Figure 4: Does the direction of the difference agree across subjects?
 % Every row is ONE training subject, not thousands of windows.
 nBands = size(candidateBandsHz,1);
 bandPower = nan(nSubjects,2,nBands); % subject x class x band
@@ -233,8 +268,8 @@ for b = 1:nBands
     v = trainingRatios(:,b);
     v = v(isfinite(v));
     if ~isempty(v)
-        fprintf('%10s Hz: median Down/Up = %+6.2f dB; ' ...
-            + "positive for %d of %d subjects\n", ...
+        fprintf(['%10s Hz: median Down/Up = %+6.2f dB; ', ...
+            'positive for %d of %d subjects\n'], ...
             bandLabels{b},median(v),sum(v>0),numel(v));
     end
 end
