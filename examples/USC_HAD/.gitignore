@@ -5,3 +5,6 @@
 *.asv
 /ME3310_USC_HAD_PowerRatioComparison.mat
 /ME3310_USC_HAD_DNN_Comparison.mat
+/ME3310_USC_HAD_FiveMotions.mat
+/ME3310_USC_HAD_FiveMotion_WindowFeatures.mat
+/ME3310_USC_HAD_FiveMotion_Comparison.mat
