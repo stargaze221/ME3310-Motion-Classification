@@ -11,10 +11,10 @@ From the root of your [ME3310-Motion-Classification](https://github.com/stargaze
 ~~~matlab
 repo = gitrepo;
 pull(repo);
-run("examples/USC_HAD/01_prepare_up_down.m");
-run("examples/USC_HAD/02_preview_up_down.m");
-run("examples/USC_HAD/03_extract_window_features.m");
-run("examples/USC_HAD/04_train_linear_svm.m");
+run("examples/USC_HAD/step01_prepare_up_down.m");
+run("examples/USC_HAD/step02_preview_up_down.m");
+run("examples/USC_HAD/step03_extract_window_features.m");
+run("examples/USC_HAD/step04_train_linear_svm.m");
 ~~~
 
 Or open the files in the MATLAB Editor and run them individually in order.
@@ -25,10 +25,10 @@ Or open the files in the MATLAB Editor and run them individually in order.
 
 | File | Purpose |
 |---|---|
-| 01_prepare_up_down.m | Obtain official USC-HAD and extract **all original activity-4 and activity-5 trials** |
-| 02_preview_up_down.m | Plot raw accelerometer/gyroscope, magnitude and complete-trial Welch PSD |
-| 03_extract_window_features.m | Use 3-second windows, 0.5-second hop and compute eight time/PSD features |
-| 04_train_linear_svm.m | Train a two-feature linear SVM, display boundary, test on **held-out subjects** and plot confusion matrix |
+| step01_prepare_up_down.m | Obtain official USC-HAD and extract **all original activity-4 and activity-5 trials** |
+| step02_preview_up_down.m | Plot raw accelerometer/gyroscope, magnitude and complete-trial Welch PSD |
+| step03_extract_window_features.m | Use 3-second windows, 0.5-second hop and compute eight time/PSD features |
+| step04_train_linear_svm.m | Train a two-feature linear SVM, display boundary, test on **held-out subjects** and plot confusion matrix |
 
 **Generated files stay local (ignored by Git):**
 
