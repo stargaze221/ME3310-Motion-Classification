@@ -17,6 +17,7 @@ run("examples/USC_HAD/step02b_explore_full_psd.m");
 run("examples/USC_HAD/step03_extract_window_features.m");
 run("examples/USC_HAD/step04_train_linear_svm.m");
 run("examples/USC_HAD/step05_compare_power_ratio.m");
+run("examples/USC_HAD/step06_compare_dnn.m");
 ~~~
 
 Or open the files in the MATLAB Editor and run them individually in order.
@@ -33,6 +34,7 @@ Or open the files in the MATLAB Editor and run them individually in order.
 | step03_extract_window_features.m | Use 3-second windows, 0.5-second hop and compute eight time/PSD features |
 | step04_train_linear_svm.m | Train a two-feature linear SVM, display boundary, test on **held-out subjects** and plot confusion matrix |
 | step05_compare_power_ratio.m | Compare four feature choices with leave-one-training-subject-out CV; contrast absolute power with log high/low ratio |
+| step06_compare_dnn.m | Compare a 2-feature SVM, an 8-feature SVM and a 2-hidden-layer DNN using identical subject-wise evaluation |
 
 **Generated files stay local (ignored by Git):**
 
@@ -56,6 +58,10 @@ Script 04 initially uses **two features** (acceleration standard deviation and b
 Run `step05_compare_power_ratio.m` after preparing the original MAT file. This script independently recomputes a consistent set of 3-second sliding-window features for STD alone, STD + low-band power, STD + high-band power, and STD + 10log10(high/low). It uses **the ten training subjects** for subject-wise cross-validation. An optional diagnostic reuses the previously reported four held-out subjects, which must not be described as a new independent test.
 
 The log-ratio was motivated by **subject-level relative PSD differences**, but those plots alone do not establish that window-level log-ratio features discriminate the activities. Recheck band selection using truly new subjects or trials before making a generalization claim.
+
+## Multi-subject DNN experiment
+
+Run `step06_compare_dnn.m` after script 03. The DNN here is a two-hidden-layer fully connected neural network (MLP) fitted with MATLAB `fitcnet` (Statistics and Machine Learning Toolbox). This deliberately uses **the same eight engineered features as the 8-feature linear SVM**, making nonlinearity the main model difference. The third baseline uses just the original two acceleration features. All comparisons use leave-one-training-subject-out balanced accuracy and also display the four previously seen subjects as a **secondary diagnostic**, not a fresh test. A raw-IMU 1D CNN would be a different experiment.
 
 ## Important experimental limitations
 
