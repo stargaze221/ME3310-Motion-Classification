@@ -35,6 +35,10 @@ Or open the files in the MATLAB Editor and run them individually in order.
 | step04_train_linear_svm.m | Train a two-feature linear SVM, display boundary, test on **held-out subjects** and plot confusion matrix |
 | step05_compare_power_ratio.m | Compare four feature choices with leave-one-training-subject-out CV; contrast absolute power with log high/low ratio |
 | step06_compare_dnn.m | Compare five SVM/DNN configurations with both window- and trajectory-level accuracy |
+| step07_prepare_five_motions.m | Collect original trials of Walking Forward, Upstairs, Downstairs, Running Forward, Standing |
+| step08_extract_five_motion_features.m | Compute 16 existing features for each 3-s window of those five activities |
+| step09_train_five_motion_svm.m | 8- vs 16-feature multiclass linear SVM, subject-held-out window and trial evaluation |
+| step10_demo_five_motion_sequence.m | Trial-feature montage: illustrative transitions and 3-window causal smoothing (not real transitions) |
 
 **Generated files stay local (ignored by Git):**
 
@@ -62,6 +66,27 @@ The log-ratio was motivated by **subject-level relative PSD differences**, but t
 ## Multi-subject DNN experiment
 
 **After pulling the updated scripts, rerun step03** so the local feature MAT file has 16 columns. Then run `step06_compare_dnn.m`. It evaluates 5 configurations: SVM-2, SVM-8, SVM-16, DNN-8, and DNN-16, with the exact same subject-wise train/validation folds. Both DNN variants use a two-hidden-layer MLP fitted with MATLAB `fitcnet` (Statistics and Machine Learning Toolbox), not a raw-signal 1D CNN. Comparing 8 versus 16 features within the same model tests whether additional PSD bands help. **Two evaluation units are now reported:** (1) each overlapping 3-second window, and (2) each complete original trial / trajectory identified by `recordID`. For trajectories, the script aggregates window labels by majority vote, resolving exact ties with the mean model-score difference. It reports raw trajectory accuracy and per-subject trajectory-balanced accuracy, plus a comparison graph and trajectory confusion matrix. Both metrics keep entire subjects held out in each CV fold. The four previously seen subjects are a **secondary diagnostic**, not a fresh test.
+
+## Five-class motion classification (scripts 07-10)
+
+The next experiment retains the original two-motion scripts **unchanged** and builds new five-class data files. The verified USC-HAD activities are ID 1 **Walking Forward**, ID 4 **Walking Upstairs**, ID 5 **Walking Downstairs**, ID 6 **Running Forward** and ID 9 **Standing**. These map to classifier labels 0-4 in that order. The five-motion prepared file and features are separate from the two-motion MAT files.
+
+From the repository root:
+
+~~~matlab
+repo = gitrepo;
+pull(repo);
+run("examples/USC_HAD/step07_prepare_five_motions.m");
+run("examples/USC_HAD/step08_extract_five_motion_features.m");
+run("examples/USC_HAD/step09_train_five_motion_svm.m");
+run("examples/USC_HAD/step10_demo_five_motion_sequence.m"); % optional
+~~~
+
+**Script 09** uses MATLAB `fitcecoc` with `templateSVM`, linear kernel, one-versus-one coding and a uniform class prior. It compares **8 vs. 16 features** using the original ten training subjects in leave-one-subject-out CV. For each fold, it reports (i) macro recall across the five activity classes at the **window** level and (ii) macro recall across the same five classes after **one majority vote per original trial**. Subjects have equal weight in the CV summary. It plots an original-trial confusion matrix; the four previously explored subjects are optional **diagnostic only**.
+
+**Script 10 is a pseudo-stream visualization, not a measured motion detection experiment**: it concatenates 3-second-window features extracted from different original single-activity trials, marks artificial seams, and displays the five-class predictions before and after a simple causal 3-in-a-row smoothing rule. It contains **no measured motion transitions**. Do not use apparent changes in this plot as physical detection-delay or false-alarm evidence. A real continuous motion detector requires uninterrupted IMU acquisition and independently annotated start/end times.
+
+**MATLAB caveat:** The new files have been reviewed for code structure, but were not executed in a MATLAB installation. Scripts 07 and 08 require base MATLAB and Signal Processing Toolbox, respectively; scripts 09 and 10 require Statistics and Machine Learning Toolbox.
 
 ## Important experimental limitations
 
