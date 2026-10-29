@@ -12,11 +12,11 @@ From the root of your [ME3310-Motion-Classification](https://github.com/stargaze
 repo = gitrepo;
 pull(repo);
 run("examples/USC_HAD/step01_prepare_up_down.m");
-run("examples/USC_HAD/step02_preview_up_down.m")
+run("examples/USC_HAD/step02_preview_up_down.m");
 run("examples/USC_HAD/step02b_explore_full_psd.m");
 run("examples/USC_HAD/step03_extract_window_features.m");
 run("examples/USC_HAD/step04_train_linear_svm.m");
-run("examples/USC_HAD/step05_compare_power_ratio.m");;
+run("examples/USC_HAD/step05_compare_power_ratio.m");
 ~~~
 
 Or open the files in the MATLAB Editor and run them individually in order.
