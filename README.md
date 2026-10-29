@@ -25,6 +25,7 @@ run("examples/USC_HAD/step02_preview_up_down.m")
 run("examples/USC_HAD/step02b_explore_full_psd.m")
 run("examples/USC_HAD/step03_extract_window_features.m")
 run("examples/USC_HAD/step04_train_linear_svm.m")
+run("examples/USC_HAD/step05_compare_power_ratio.m")
 ```
 
 Already cloned the repository? From the clone's root directory, update it with `repo = gitrepo; pull(repo);` instead of cloning again. If MATLAB's Git functions are unavailable, use a normal Git client or download the repository ZIP.
@@ -45,10 +46,13 @@ The [USC-HAD example](examples/USC_HAD/README.md) uses official wearable IMU rec
 | [step02b_explore_full_psd.m](examples/USC_HAD/step02b_explore_full_psd.m) | Full-frequency PSD, normalized spectral shape, and subject-by-subject band comparison (training subjects only) |
 | [step03_extract_window_features.m](examples/USC_HAD/step03_extract_window_features.m) | Sliding windows, time- and frequency-domain features, scatter plot |
 | [step04_train_linear_svm.m](examples/USC_HAD/step04_train_linear_svm.m) | Two-feature linear SVM, decision boundary, held-out-subject evaluation |
+| [step05_compare_power_ratio.m](examples/USC_HAD/step05_compare_power_ratio.m) | Compare STD, absolute PSD band powers, and log high/low power ratio with subject-wise CV |
+
+**Follow-up power-ratio experiment:** Run script 05 after script 01; it independently extracts the spectral features from the prepared USC-HAD data. It reports leave-one-training-subject-out cross-validation for four candidates and, optionally, a separately labeled diagnostic on the four already inspected subjects. Such a reused holdout is NOT a fresh test.
 
 Inspect the full PSD before choosing a band. The initial 0.8-3 Hz band in script 03 is only a demonstration; change it based on training-subject evidence and preserve held-out subjects for validation.
 
-**MATLAB requirements:** base MATLAB; Signal Processing Toolbox for `pwelch`; Statistics and Machine Learning Toolbox for `fitcsvm`. Scripts have not yet been runtime-verified in a MATLAB installation.
+**MATLAB requirements:** base MATLAB; Signal Processing Toolbox for `pwelch`; Statistics and Machine Learning Toolbox for `fitcsvm`. The new script has not yet been runtime-verified in a MATLAB installation.
 
 ## Why this is an Experimental Methods project
 
