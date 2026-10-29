@@ -22,6 +22,7 @@ Then, from the repository root, run the example scripts **in order**:
 ```matlab
 run("examples/USC_HAD/step01_prepare_up_down.m")
 run("examples/USC_HAD/step02_preview_up_down.m")
+run("examples/USC_HAD/step02b_explore_full_psd.m")
 run("examples/USC_HAD/step03_extract_window_features.m")
 run("examples/USC_HAD/step04_train_linear_svm.m")
 ```
@@ -41,8 +42,11 @@ The [USC-HAD example](examples/USC_HAD/README.md) uses official wearable IMU rec
 |---|---|
 | [step01_prepare_up_down.m](examples/USC_HAD/step01_prepare_up_down.m) | Download/reuse the official archive, prepare original complete trials |
 | [step02_preview_up_down.m](examples/USC_HAD/step02_preview_up_down.m) | Raw IMU signals, acceleration magnitude, Welch power spectral density |
+| [step02b_explore_full_psd.m](examples/USC_HAD/step02b_explore_full_psd.m) | Full-frequency PSD, normalized spectral shape, and subject-by-subject band comparison (training subjects only) |
 | [step03_extract_window_features.m](examples/USC_HAD/step03_extract_window_features.m) | Sliding windows, time- and frequency-domain features, scatter plot |
 | [step04_train_linear_svm.m](examples/USC_HAD/step04_train_linear_svm.m) | Two-feature linear SVM, decision boundary, held-out-subject evaluation |
+
+Inspect the full PSD before choosing a band. The initial 0.8-3 Hz band in script 03 is only a demonstration; change it based on training-subject evidence and preserve held-out subjects for validation.
 
 **MATLAB requirements:** base MATLAB; Signal Processing Toolbox for `pwelch`; Statistics and Machine Learning Toolbox for `fitcsvm`. Scripts have not yet been runtime-verified in a MATLAB installation.
 
