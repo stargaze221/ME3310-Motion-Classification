@@ -48,13 +48,15 @@ The [USC-HAD example](examples/USC_HAD/README.md) uses official wearable IMU rec
 | [step03_extract_window_features.m](examples/USC_HAD/step03_extract_window_features.m) | Sliding windows with 8 original features plus 8 additional PSD band powers (16 total) |
 | [step04_train_linear_svm.m](examples/USC_HAD/step04_train_linear_svm.m) | Two-feature linear SVM, decision boundary, held-out-subject evaluation |
 | [step05_compare_power_ratio.m](examples/USC_HAD/step05_compare_power_ratio.m) | Compare STD, absolute PSD band powers, and log high/low power ratio with subject-wise CV |
-| [step06_compare_dnn.m](examples/USC_HAD/step06_compare_dnn.m) | Compare SVM-2, SVM-8, SVM-16, DNN-8, DNN-16 with subject-wise CV |
+| [step06_compare_dnn.m](examples/USC_HAD/step06_compare_dnn.m) | Compare five SVM/DNN models at both 3-second window and entire-trial (trajectory) levels |
 
 **Follow-up power-ratio experiment:** Run script 05 after script 01; it independently extracts the spectral features from the prepared USC-HAD data. It reports leave-one-training-subject-out cross-validation for four candidates and, optionally, a separately labeled diagnostic on the four already inspected subjects. Such a reused holdout is NOT a fresh test.
 
-**Multi-subject neural network experiment:** Rerun the UPDATED script 03 to regenerate `ME3310_USC_HAD_WindowFeatures.mat` with **16 features**, then run script 06. It now compares five configurations: linear SVM with 2, 8, or 16 features, and a two-hidden-layer `fitcnet` neural network with 8 or 16 features. It reports leave-one-training-subject-out balanced accuracy and labels the four previously inspected subjects as a diagnostic, not a new untouched test. Added acceleration magnitude PSD bands: **0.3-0.8, 0.8-1.5, 1.5-3, 3-5, 5-8, 8-12, 12-20, 20-40 Hz**. The original 0.8-3 Hz band (feature 2) remains unchanged, so some PSD features are correlated.
+**Multi-subject neural network experiment:** Rerun the UPDATED script 03 to regenerate `ME3310_USC_HAD_WindowFeatures.mat` with **16 features**, then run script 06. It now compares five configurations: linear SVM with 2, 8, or 16 features, and a two-hidden-layer `fitcnet` neural network with 8 or 16 features. It reports **both window-level and trajectory-level** leave-one-training-subject-out balanced accuracy. Original trials are grouped by `recordID`, with one majority-vote decision per trial. Exact window-vote ties use the classifier score average. Each subject contributes equally to the primary cross-validation summary. The four previously inspected subjects remain a diagnostic, not a new untouched test. Added acceleration magnitude PSD bands: **0.3-0.8, 0.8-1.5, 1.5-3, 3-5, 5-8, 8-12, 12-20, 20-40 Hz**. The original 0.8-3 Hz band (feature 2) remains unchanged, so some PSD features are correlated.
 
 Inspect the full PSD before choosing a band. The initial 0.8-3 Hz band in script 03 is only a demonstration; change it based on training-subject evidence and preserve held-out subjects for validation.
+
+**Interpretation:** A trajectory is one original, single-activity USC-HAD recording; trajectory accuracy measures whole-trial classification, not online motion onset/transition detection. Window and trajectory metrics may differ, and correlated windows cannot be counted as independent trials.
 
 **MATLAB requirements:** base MATLAB; Signal Processing Toolbox for `pwelch`; Statistics and Machine Learning Toolbox for `fitcsvm`. The new script has not yet been runtime-verified in a MATLAB installation.
 
