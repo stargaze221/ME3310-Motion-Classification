@@ -26,6 +26,7 @@ run("examples/USC_HAD/step02b_explore_full_psd.m")
 run("examples/USC_HAD/step03_extract_window_features.m")
 run("examples/USC_HAD/step04_train_linear_svm.m")
 run("examples/USC_HAD/step05_compare_power_ratio.m")
+run("examples/USC_HAD/step06_compare_dnn.m")
 ```
 
 Already cloned the repository? From the clone's root directory, update it with `repo = gitrepo; pull(repo);` instead of cloning again. If MATLAB's Git functions are unavailable, use a normal Git client or download the repository ZIP.
@@ -47,8 +48,11 @@ The [USC-HAD example](examples/USC_HAD/README.md) uses official wearable IMU rec
 | [step03_extract_window_features.m](examples/USC_HAD/step03_extract_window_features.m) | Sliding windows, time- and frequency-domain features, scatter plot |
 | [step04_train_linear_svm.m](examples/USC_HAD/step04_train_linear_svm.m) | Two-feature linear SVM, decision boundary, held-out-subject evaluation |
 | [step05_compare_power_ratio.m](examples/USC_HAD/step05_compare_power_ratio.m) | Compare STD, absolute PSD band powers, and log high/low power ratio with subject-wise CV |
+| [step06_compare_dnn.m](examples/USC_HAD/step06_compare_dnn.m) | Compare 2-feature linear SVM, 8-feature linear SVM, and 8-feature nonlinear DNN (MLP) |
 
 **Follow-up power-ratio experiment:** Run script 05 after script 01; it independently extracts the spectral features from the prepared USC-HAD data. It reports leave-one-training-subject-out cross-validation for four candidates and, optionally, a separately labeled diagnostic on the four already inspected subjects. Such a reused holdout is NOT a fresh test.
+
+**Multi-subject neural network experiment:** After script 03, script 06 uses the same 8 summary features for an 8-feature linear SVM and a two-hidden-layer neural network using `fitcnet`. It reports leave-one-training-subject-out balanced accuracy for fair model comparison. The previously inspected four subjects are labeled as a diagnostic, not a new untouched test.
 
 Inspect the full PSD before choosing a band. The initial 0.8-3 Hz band in script 03 is only a demonstration; change it based on training-subject evidence and preserve held-out subjects for validation.
 
