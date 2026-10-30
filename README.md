@@ -91,6 +91,34 @@ Inspect the full PSD before choosing a band. The initial 0.8-3 Hz band in script
 
 ### Week 11 Canvas Page 02 — Feature Comparison, Fisher Score and LDA
 
+### Week 11 Canvas Page 03 — From Features to Machine Learning
+
+[week11_03_classifiers_demo.m](examples/Student_IMU/week11_03_classifiers_demo.m) uses **real USC-HAD Upstairs/Downstairs original trials** to compare logistic regression (`fitglm`) and a linear SVM (`fitcsvm`). It calculates the same 16 features previously extracted from overlapping windows but averages them **within each original trial before training**. One original measured trial is one observation; this is **completed-trial classification**, NOT real-time transition detection.
+
+From an updated repository root (after step01 and step03 data preparation):
+
+```matlab
+addpath(fullfile(pwd,"examples","Student_IMU"));
+M = week11_03_classifiers_demo("manual",[1 2]);
+disp(M.trainingReport);
+disp(M.diagnosticReport);
+M.confusionLogistic
+M.confusionSVM
+```
+
+Plots: (1) logistic probability 0.5 and SVM margin 0 decision boundaries plus actual trial points, and (2) confusion matrices for subjects excluded from the model fit. Feature normalization uses development data only. Development subjects: `[2 3 4 7 8 9 10 11 12 14]`; diagnostic subjects: `[1 5 6 13]`. These diagnostic subjects had already been examined earlier in the project, so this is **NOT** an untouched final test.
+
+Optional limited selection among six predefined feature pairs, using development-only leave-one-subject-out cross-validation:
+
+```matlab
+M = week11_03_classifiers_demo("search");
+disp(M.candidateResults);
+disp(M.featurePair);
+```
+
+This screening is exploratory and does not optimize SVM hyperparameters. SVM margins are not probabilities; logistic probabilities also require validation/calibration. Requires Statistics and Machine Learning Toolbox; existing PSD extraction requires Signal Processing Toolbox. The script was inspected statically but not executed in MATLAB.
+
+
 [week11_02_fisher_lda_demo.m](examples/Student_IMU/week11_02_fisher_lda_demo.m) reuses the **measured original-trial feature table** returned by the comparison demo. It computes descriptive, trial-level **Fisher Scores**, displays feature-redundancy correlations, and shows a two-feature **regularized LDA projection** (not a fitted/tested classifier). No simulated data or automatic model optimization.
 
 After preparing the real USC-HAD recordings and window-feature file as above:
