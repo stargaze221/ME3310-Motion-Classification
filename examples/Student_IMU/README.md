@@ -8,6 +8,39 @@ This folder provides a local MAT-file inspection and standardization layer for s
 
 ### Week 11 Canvas Page 02 — Feature comparison, Fisher Score, LDA
 
+### Week 11 Canvas Page 05 — Uncertainty and Reliability of Classification
+
+Run [week11_05_uncertainty_demo.m](week11_05_uncertainty_demo.m) using the
+real USC-HAD five-motion feature and SVM summary files produced by
+step07–step09. From the repository root:
+
+```matlab
+repo = gitrepo;
+pull(repo);
+addpath(fullfile(pwd,"examples","Student_IMU"));
+U = week11_05_uncertainty_demo("all");
+disp(U.featureIntervals)
+disp(U.subjectReport)
+disp(U.classRecall)
+```
+
+The script shows: (1) five independent Upstairs / Downstairs trials
+for Subject 2, with descriptive mean and 95% Student-t confidence
+interval for two trial-mean features, (2) cross-validation balanced
+accuracy by held-out subject for the original 8 vs expanded 16 features,
+and (3) five-class original-trial confusion and class-specific recall.
+Options: `"features"`, `"subjects"`, `"errors"`, or `"all"`.
+
+**Do not equate different uncertainty quantities.** The displayed
+t confidence interval applies to a class mean of measured features
+under approximately independent and normal original-trial summaries.
+Overlapping windows are not independent trials. The plotted differences
+between held-out subjects are NOT a classical confidence interval on
+model generalization because leave-one-subject-out training folds
+overlap. These actual USC-HAD recordings do not measure genuine
+motion-transition latency or service reliability for new PocketLab
+users. MATLAB runtime testing has not been independently completed.
+
 ### Week 11 Canvas Page 04 — Two motions to five, 8 vs. 16 features
 
 Page 04 is a **separate Canvas lesson**. The established five-class
