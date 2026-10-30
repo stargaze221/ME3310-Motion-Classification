@@ -4,6 +4,21 @@ This folder provides a local MAT-file inspection and standardization layer for s
 
 ## Week 11 / Canvas Page 01: real USC-HAD measurement demonstrations
 
+### Compare Upstairs vs Downstairs in feature space
+
+Run the existing feature-extraction script ONCE, then plot real upstairs/downstairs data:
+
+```matlab
+run("examples/USC_HAD/step03_extract_window_features.m");
+addpath(fullfile(pwd,"examples","Student_IMU"));
+C = week11_02_feature_compare_demo(2,[1 2]);
+disp(C.trialFeatures);
+C = week11_02_feature_compare_demo(2,[1 3]);
+```
+
+The new script [week11_02_feature_compare_demo.m](week11_02_feature_compare_demo.m) generates three figures: one-dimensional feature distributions for each original trial (with mean ± sample STD), a 2D feature scatter, and class-mean acceleration-magnitude PSD computed from **real** USC-HAD measurements. Default Subject 2 has five original upstairs trials and five original downstairs trials; windows are averaged within original trials before plotting. Feature indices [1 2] represent acceleration magnitude STD vs 0.8-3 Hz PSD band power, consistent with the project's pre-existing 16-feature matrix. Try "all" as the first argument to examine subject-to-subject variability, and select different feature indices to test your own hypothesis. No automatic feature selection or classifier training takes place. MATLAB verification is still pending.
+
+
 The [week11_01_feature_demo.m](week11_01_feature_demo.m) function accompanies the lecture *From Time Series to Meaningful Features*. Its **default source is an actual USC-HAD Walking Upstairs trial** from the official 100-Hz IMU dataset. Use `"downstairs"` to examine the corresponding opposite movement. It attempts to select Subject 2, Trial 1 for both activities and prints the original record identity.
 
 **First-time setup from a MATLAB working directory:**
