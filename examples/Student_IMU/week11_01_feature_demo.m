@@ -9,7 +9,9 @@ function R = week11_01_feature_demo(section,dataSource)
 %
 % week11_01_feature_demo("signal")                 % real USC-HAD Upstairs
 % week11_01_feature_demo("signal","downstairs")    % real USC-HAD Downstairs
-% R = week11_01_feature_demo("time","upstairs")
+% R = week11_01_feature_demo("time","upstairs")        % WHOLE trial
+% R = week11_01_feature_demo("timecompare","upstairs") % whole vs first 3 s
+% R = week11_01_feature_demo("timecompare","downstairs")
 % R = week11_01_feature_demo("fft","upstairs")
 % R = week11_01_feature_demo("psd","downstairs")
 % R = week11_01_feature_demo("bands","upstairs")
@@ -28,7 +30,7 @@ if nargin<1 || isempty(section),section="all";end
 if nargin<2 || isempty(dataSource),dataSource="upstairs";end
 section=lower(string(section));
 dataSource=string(dataSource);
-assert(ismember(section,["signal","time","fft","psd", ...
+assert(ismember(section,["signal","time","timecompare","fft","psd", ...
     "bands","windows","all"]),'Unknown demo section.');
 
 %% Select one ORIGINAL USC-HAD continuous trial or one student MAT file.
@@ -112,34 +114,96 @@ if section=="signal" || section=="all"
     fprintf('Median sample interval %.4f s.\n',median(diff(t)));
 end
 
-%% 2. Mean, sample STD, RMS, absolute peak, range; optional jerk
+%% 2. Time-domain features: WHOLE original trial
+% This mode intentionally does NOT divide the record into 3-s windows.
 if section=="time" || section=="all"
-    traces=[];labels={};
-    if ~isempty(a)
-        traces=[traces,a,sqrt(sum(a.^2,2))];
-        labels=[labels,{'a_x','a_y','a_z','|a|'}];
-    end
-    if ~isempty(g)
-        traces=[traces,g,sqrt(sum(g.^2,2))];
-        labels=[labels,{'w_x','w_y','w_z','|w|'}];
-    end
-    m=mean(traces,1)';
-    sd=std(traces,0,1)';
-    rmsValue=sqrt(mean(traces.^2,1))';
-    absPeak=max(abs(traces),[],1)';
-    rangeValue=(max(traces,[],1)-min(traces,[],1))';
-    R.timeFeatures=table(string(labels(:)),m,sd,rmsValue, ...
-        absPeak,rangeValue,'VariableNames', ...
-        {'Channel','Mean','SampleSTD','RMS','PeakAbs','Range'});
+    [R.timeFeatures,R.jerkRMS]=summarizeTimeChannels(a,g,t);
+    fprintf('WHOLE original trial (%d samples, %.2f s span):\n', ...
+        n,t(end)-t(1));
     disp(R.timeFeatures);
     if ~isempty(a)
-        jerk=diff(a)./diff(t);
-        R.jerkRMS=sqrt(mean(sum(jerk.^2,2)));
-        fprintf('Jerk RMS: %.5f [raw accel unit]/s.\n',R.jerkRMS);
-    else
-        R.jerkRMS=NaN;
+        fprintf('Whole-trial jerk RMS: %.5f [accel unit]/s.\n',R.jerkRMS);
     end
     fprintf('Within-trial STD is NOT between-independent-trial STD.\n');
+end
+
+%% 2b. Same measured trial: WHOLE trial vs FIRST 3-s feature window
+% Keep identical feature definitions so the observed difference is caused
+% by the analysis interval, not a different computation or normalization.
+if section=="timecompare" || section=="all"
+    windowSeconds=3;
+    windowN=round(windowSeconds*fs); % USC-HAD: 300 samples at 100 Hz
+    assert(windowN>=2 && n>=windowN, ...
+        'Need at least 3 s of measured data for this comparison.');
+    windowIdx=1:windowN;
+    if isempty(a),firstA=[];else,firstA=a(windowIdx,:);end
+    if isempty(g),firstG=[];else,firstG=g(windowIdx,:);end
+    [wholeFeatures,wholeJerk]=summarizeTimeChannels(a,g,t);
+    [firstFeatures,firstJerk]=summarizeTimeChannels( ...
+        firstA,firstG,t(windowIdx));
+    assert(isequal(wholeFeatures.Channel,firstFeatures.Channel), ...
+        'Channel definitions do not match.');
+    R.wholeTrialTimeFeatures=wholeFeatures;
+    R.firstWindowTimeFeatures=firstFeatures;
+    R.wholeTrialJerkRMS=wholeJerk;
+    R.firstWindowJerkRMS=firstJerk;
+    R.firstWindowSampleIndices=windowIdx;
+    R.firstWindowDurationSeconds=windowSeconds;
+    R.timeComparison=table( ...
+        wholeFeatures.Channel,wholeFeatures.Mean,firstFeatures.Mean, ...
+        wholeFeatures.SampleSTD,firstFeatures.SampleSTD, ...
+        wholeFeatures.RMS,firstFeatures.RMS, ...
+        wholeFeatures.PeakAbs,firstFeatures.PeakAbs, ...
+        'VariableNames',{'Channel','WholeMean','First3sMean', ...
+        'WholeSTD','First3sSTD','WholeRMS','First3sRMS', ...
+        'WholePeakAbs','First3sPeakAbs'});
+    fprintf('\nWHOLE trial (%d samples) vs FIRST 3-s window (%d samples):\n', ...
+        n,windowN);
+    disp(R.timeComparison);
+    if ~isempty(a)
+        fprintf('Jerk RMS: whole %.4f vs first 3-s %.4f [accel unit]/s.\n', ...
+            wholeJerk,firstJerk);
+    end
+
+    % FIGURE: measured first-window interval and time features computed
+    % on exactly these two analysis intervals.
+    nPanels=2+(~isempty(g) && ~isempty(a));
+    figure('Name','01 | Whole trial versus first 3-second window');
+    tiledlayout(nPanels,1,'TileSpacing','compact');
+    nexttile;hold on;
+    plot(t,raw,'Color',[0.22 0.42 0.68],'LineWidth',1.2);
+    yl=ylim;
+    xline(t(windowN),'--','End of first 3-s window', ...
+        'LabelVerticalAlignment','middle','Color',[0.75 0.32 0.18]);
+    xlabel('Time (s)');
+    ylabel(measured+" (raw units)");
+    title(name,'Interpreter','none');grid on;
+
+    if ~isempty(a)
+        row=find(wholeFeatures.Channel=="|a|",1);
+        y1=[wholeFeatures.SampleSTD(row),firstFeatures.SampleSTD(row)];
+        measureTitle='Acceleration magnitude STD';
+        yLabel='STD (acceleration units)';
+    else
+        row=find(wholeFeatures.Channel=="|w|",1);
+        y1=[wholeFeatures.SampleSTD(row),firstFeatures.SampleSTD(row)];
+        measureTitle='Gyroscope magnitude STD';
+        yLabel='STD (angular-rate units)';
+    end
+    nexttile;bar(y1,'FaceColor',[0.24 0.53 0.68]);
+    xticks([1 2]);xticklabels({'Whole trial','First 3 s'});
+    ylabel(yLabel);title(measureTitle);grid on;
+
+    if ~isempty(g)&&~isempty(a)
+        row=find(wholeFeatures.Channel=="|w|",1);
+        y2=[wholeFeatures.RMS(row),firstFeatures.RMS(row)];
+        nexttile;bar(y2,'FaceColor',[0.77 0.44 0.22]);
+        xticks([1 2]);xticklabels({'Whole trial','First 3 s'});
+        ylabel('RMS (angular-rate units)');
+        title('Gyroscope magnitude RMS');grid on;
+    end
+    fprintf(['These are two summaries of the SAME original measured ' ...
+        'trial, NOT independent repetitions.\n']);
 end
 
 %% 3. FFT -> one-sided amplitude and rectangular-window periodogram
@@ -258,4 +322,35 @@ if section=="windows" || section=="all"
     title('Many summaries from one trial, NOT independent repetitions');
 end
 fprintf('Next: compare three independent Target vs three Confusing trials.\n');
+end
+
+function [features,jerkRMS]=summarizeTimeChannels(a,g,t)
+% Same time-domain feature definitions for ANY contiguous interval.
+t=double(t(:));
+traces=[];labels={};
+if ~isempty(a)
+    traces=[traces,a,sqrt(sum(a.^2,2))];
+    labels=[labels,{'a_x','a_y','a_z','|a|'}];
+end
+if ~isempty(g)
+    traces=[traces,g,sqrt(sum(g.^2,2))];
+    labels=[labels,{'w_x','w_y','w_z','|w|'}];
+end
+assert(~isempty(traces) && size(traces,1)==numel(t), ...
+    'Time and measured channels do not match.');
+m=mean(traces,1)';
+sd=std(traces,0,1)';
+rmsValue=sqrt(mean(traces.^2,1))';
+absPeak=max(abs(traces),[],1)';
+rangeValue=(max(traces,[],1)-min(traces,[],1))';
+features=table(string(labels(:)),m,sd,rmsValue, ...
+    absPeak,rangeValue,'VariableNames', ...
+    {'Channel','Mean','SampleSTD','RMS','PeakAbs','Range'});
+jerkRMS=NaN;
+if ~isempty(a)
+    dt=diff(t);
+    assert(all(dt>0),'Timestamps must increase to calculate jerk.');
+    jerk=diff(a)./dt;
+    jerkRMS=sqrt(mean(sum(jerk.^2,2)));
+end
 end
