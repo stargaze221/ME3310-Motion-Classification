@@ -87,6 +87,29 @@ Inspect the full PSD before choosing a band. The initial 0.8-3 Hz band in script
 
 ## Week 11 lecture: REAL USC-HAD time series, FFT, and PSD (Page 01)
 
+### Compare two real motions in feature space (Week 11 Page 01, Section 8)
+
+The [USC-HAD trial-level comparison demo](examples/Student_IMU/week11_02_feature_compare_demo.m) visualizes Upstairs vs Downstairs using the existing **16-feature** extraction pipeline. It creates (1) two 1D feature comparisons, (2) a 2D scatter, and (3) an equally trial-weighted PSD comparison. Each dot represents **one original trial**, not one overlapping window.
+
+After cloning or pulling the repository, from its root:
+
+```matlab
+if ~isfile("examples/USC_HAD/ME3310_USC_HAD_UpDown.mat")
+    run("examples/USC_HAD/step01_prepare_up_down.m");
+end
+if ~isfile("examples/USC_HAD/ME3310_USC_HAD_WindowFeatures.mat")
+    run("examples/USC_HAD/step03_extract_window_features.m");
+end
+addpath(fullfile(pwd,"examples","Student_IMU"));
+C = week11_02_feature_compare_demo(2,[1 2]);
+disp(C.trialFeatures)
+C = week11_02_feature_compare_demo(2,[1 3]);
+C = week11_02_feature_compare_demo("all",[1 2]);
+```
+
+The default is Subject 2, comparing 5 real upstairs and 5 real downstairs trials. A trial's feature vector is the mean of its own sliding-window vectors; plots are *descriptive*, not classification accuracy, and do not imply independent sliding windows. PSDs are averaged window-to-trial-to-class with equal weight per original trial, using the same Welch settings as the original feature-extraction script. Signal Processing Toolbox is required. MATLAB execution has not yet been independently verified.
+
+
 The [Week 11 MATLAB demonstration](examples/Student_IMU/week11_01_feature_demo.m) now uses **original USC-HAD measured 100-Hz six-axis recordings** as the default data source. It compares Walking Upstairs and Walking Downstairs for Subject 2, Trial 1 when available. The original measured trials are prepared through [step01_prepare_up_down.m](examples/USC_HAD/step01_prepare_up_down.m), and are **not stored in this repository**.
 
 **First time** (MATLAB R2023b or newer, from a folder where you want to clone):
