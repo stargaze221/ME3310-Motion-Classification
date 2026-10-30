@@ -1,50 +1,77 @@
-function R = week11_01_feature_demo(section,studentMatFile)
+function R = week11_01_feature_demo(section,dataSource)
 % WEEK11_01_FEATURE_DEMO | ME 3310 Week 11, Canvas Page 01
-% A MATLAB command for each lesson: signal, time, fft, psd, bands, windows.
-% Run 'all' to execute all six sections.
+% MEASURED recordings only: actual USC-HAD upstairs/downstairs trials,
+% or a local student's actual MAT file.
 %
-% From repository root:
-% addpath("examples/Student_IMU");
-% week11_01_feature_demo("signal")
-% R = week11_01_feature_demo("time")
-% R = week11_01_feature_demo("fft")
-% R = week11_01_feature_demo("psd")
-% R = week11_01_feature_demo("bands")
-% R = week11_01_feature_demo("windows")
-% R = week11_01_feature_demo("all")
+% First-time setup from repository root:
+% run("examples/USC_HAD/step01_prepare_up_down.m")
+% addpath("examples/Student_IMU")
+%
+% week11_01_feature_demo("signal")                 % real USC-HAD Upstairs
+% week11_01_feature_demo("signal","downstairs")    % real USC-HAD Downstairs
+% R = week11_01_feature_demo("time","upstairs")
+% R = week11_01_feature_demo("fft","upstairs")
+% R = week11_01_feature_demo("psd","downstairs")
+% R = week11_01_feature_demo("bands","upstairs")
+% R = week11_01_feature_demo("windows","upstairs")
+% R = week11_01_feature_demo("all","upstairs")
 % R = week11_01_feature_demo("all","C:\path\to\trial_T01.mat")
 %
-% If studentMatFile is absent, data are clearly labeled SYNTHETIC 20-Hz
-% six-axis instructional data. Never report them as experimental evidence.
-% Actual files may be accel only; missing gyro is NEVER filled with zero.
-% 'psd', 'bands', 'all' require Signal Processing Toolbox (pwelch).
+% Source data: USC-HAD 100 Hz acceleration (g) and gyro (deg/s).
+% For comparing two motions, the default picks Subject 2 Trial 1
+% (if present) for BOTH upstairs and downstairs.
+% Actual student MAT files may have other fs/channels.
+% No missing sensor channels are fabricated.
+% Signal Processing Toolbox required for 'psd','bands','all'.
 
 if nargin<1 || isempty(section),section="all";end
-if nargin<2,studentMatFile="";end
+if nargin<2 || isempty(dataSource),dataSource="upstairs";end
 section=lower(string(section));
+dataSource=string(dataSource);
 assert(ismember(section,["signal","time","fft","psd", ...
     "bands","windows","all"]),'Unknown demo section.');
 
-%% Load a student MAT file or make a REPRODUCIBLE synthetic example.
-synthetic=strlength(string(studentMatFile))==0;
-if synthetic
-    fs=20;
-    t=(0:139)'/fs;    % 7 seconds of teaching signal
-    rng(3310);
-    a=[0.09*sin(2*pi*1.7*t)+0.012*randn(size(t)), ...
-       0.06*sin(2*pi*1.7*t+0.6)+0.012*randn(size(t)), ...
-       1+0.26*sin(2*pi*1.7*t)+0.07*sin(2*pi*4.5*t) ...
-       +0.012*randn(size(t))];
-    g=[8*sin(2*pi*1.7*t),13*sin(2*pi*1.7*t+0.8), ...
-       5*sin(2*pi*1.7*t+1.3)];
-    name="SYNTHETIC 20-Hz six-axis signal (NOT student data)";
+%% Select one ORIGINAL USC-HAD continuous trial or one student MAT file.
+if any(strcmpi(dataSource,["upstairs","downstairs"]))
+    scriptFolder=fileparts(mfilename('fullpath'));
+    dataset=fullfile(fileparts(scriptFolder),"USC_HAD", ...
+        "ME3310_USC_HAD_UpDown.mat");
+    assert(isfile(dataset), ...
+        ['USC-HAD data missing. From repository root, first run ' ...
+         'run("examples/USC_HAD/step01_prepare_up_down.m").']);
+    D=load(dataset,'records','fs','classNames');
+    label=double(strcmpi(dataSource,"downstairs")); % Upstairs 0, Downstairs 1
+    idx=find([D.records.subject]==2 & [D.records.trial]==1 & ...
+             [D.records.label]==label,1);
+    if isempty(idx)
+        idx=find([D.records.label]==label,1); % fallback: real record only
+    end
+    assert(~isempty(idx),'No valid trial for requested USC-HAD motion.');
+    original=D.records(idx);
+    fs=double(D.fs);
+    t=double(original.t(:));
+    a=double(original.acc);
+    g=double(original.gyro);
+    assert(numel(t)==size(a,1) && numel(t)==size(g,1), ...
+        'USC-HAD trial channel lengths do not match.');
+    name=sprintf('USC-HAD: %s | Subject %d | Trial %d', ...
+        D.classNames{label+1},original.subject,original.trial);
 else
-    T=load_student_trial(char(studentMatFile));
+    assert(isfile(dataSource), ...
+        ['Unknown source: choose "upstairs", "downstairs", ' ...
+         'or an existing student MAT-file path.']);
+    T=load_student_trial(char(dataSource));
     fs=T.fs;t=T.t;a=T.acc;g=T.gyro;
-    name="Actual file: "+string(studentMatFile);
+    name="Student measurement: "+dataSource;
 end
 n=numel(t);
-assert(n>=8 && fs>0,'Too few samples or invalid sampling rate.');
+assert(n>=8 && fs>0 && all(isfinite(t)), ...
+    'Too few samples or invalid time/sampling rate.');
+assert((isempty(a) || all(isfinite(a(:)))) && ...
+       (isempty(g) || all(isfinite(g(:)))), ...
+    'Measurement channels must contain finite values.');
+assert(~isempty(a) || ~isempty(g), ...
+    'No acceleration or gyroscope channel was recorded.');
 if ~isempty(a)
     raw=sqrt(sum(a.^2,2));
     measured="Acceleration magnitude";
@@ -52,13 +79,13 @@ else
     raw=sqrt(sum(g.^2,2));
     measured="Angular-rate magnitude";
 end
-x=raw-mean(raw); % remove DC for FFT/PSD investigations
+x=raw-mean(raw); % remove DC for spectral analysis, not for time features
 R=struct('source',name,'fs',fs,'time',t, ...
     'signal',raw,'signalDemeaned',x,'nSamples',n);
 fprintf('\n=== Week 11 / 01: %s ===\n',section);
 fprintf('%s\n',name);
 fprintf('N=%d, fs=%.3f Hz, Nyquist=%.3f Hz\n',n,fs,fs/2);
-if isempty(g),fprintf('NO GYRO measured. No gyro features fabricated.\n');end
+if isempty(g),fprintf('No gyroscope measured: no gyro features computed.\n');end
 
 %% 1. Signal in the time domain
 if section=="signal" || section=="all"
