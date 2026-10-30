@@ -85,24 +85,38 @@ Inspect the full PSD before choosing a band. The initial 0.8-3 Hz band in script
 
 [Student data inspection tools](examples/Student_IMU/README.md) support actual ME 3310 MAT trial files with elapsed time and optional 3-axis acceleration and gyroscope measurements. Use [step01_inspect_student_mat.m](examples/Student_IMU/step01_inspect_student_mat.m) to select local recordings, inspect sampling, channels, time traces and PSD. [load_student_trial.m](examples/Student_IMU/load_student_trial.m) returns a standard trial structure without inventing unavailable sensor channels or class labels. The initial uploaded examples are **accelerometer-only at 20 Hz**, requiring a different feature set from the USC-HAD 100-Hz six-axis model. No student data are committed.
 
-## Week 11 lecture: Time series, FFT and PSD (Page 01)
+## Week 11 lecture: REAL USC-HAD time series, FFT, and PSD (Page 01)
 
-The [Week 11 student-facing MATLAB demo](examples/Student_IMU/week11_01_feature_demo.m) supports the Canvas page **01 — From Time Series to Meaningful Features**. It uses 20-Hz labeled **synthetic** six-axis signals by default, or reads a real local MAT trial via the existing loader. Each subsection has a matching function call:
+The [Week 11 MATLAB demonstration](examples/Student_IMU/week11_01_feature_demo.m) now uses **original USC-HAD measured 100-Hz six-axis recordings** as the default data source. It compares Walking Upstairs and Walking Downstairs for Subject 2, Trial 1 when available. The original measured trials are prepared through [step01_prepare_up_down.m](examples/USC_HAD/step01_prepare_up_down.m), and are **not stored in this repository**.
+
+**First time** (MATLAB R2023b or newer, from a folder where you want to clone):
+
+```matlab
+repo = gitclone("https://github.com/stargaze221/ME3310-Motion-Classification.git");
+cd(repo.WorkingFolder);
+run("examples/USC_HAD/step01_prepare_up_down.m"); % official dataset, once
+addpath(fullfile(pwd,"examples","Student_IMU"));
+week11_01_feature_demo("signal","upstairs");
+```
+
+**Already cloned** (from the existing repository folder):
 
 ```matlab
 repo = gitrepo;
 pull(repo);
-addpath("examples/Student_IMU");
-week11_01_feature_demo("signal");   % raw accelerometer/gyro axes
-R = week11_01_feature_demo("time");   % mean, STD, RMS, peak, jerk
-R = week11_01_feature_demo("fft");    % FFT magnitude versus PSD
-R = week11_01_feature_demo("psd");    % Welch versus periodogram
-R = week11_01_feature_demo("bands");  % 0.5-3 and 3-8 Hz power
-R = week11_01_feature_demo("windows");% overlapping window dependence
-R = week11_01_feature_demo("all","C:\\path\\to\\trial_T01.mat");
+if ~isfile("examples/USC_HAD/ME3310_USC_HAD_UpDown.mat")
+    run("examples/USC_HAD/step01_prepare_up_down.m");
+end
+addpath(fullfile(pwd,"examples","Student_IMU"));
+R = week11_01_feature_demo("time","upstairs");
+R = week11_01_feature_demo("fft","upstairs");
+R = week11_01_feature_demo("psd","downstairs");
+R = week11_01_feature_demo("bands","upstairs");
+R = week11_01_feature_demo("windows","upstairs");
 ```
 
-The real T01/T02 files previously available were **acceleration only**; the script does not fabricate gyro readings. For next student measurements, collect acceleration XYZ + gyroscope XYZ at nominal 20 Hz and verify channels and units. Use **three independent Target and three independent Confusing trials** for repeatability; do not treat overlapping windows as independent experiments. A MATLAB installation and Signal Processing Toolbox (for PSD) are needed. Code has been reviewed statically, not executed in a MATLAB runtime.
+The function also accepts an actual student MAT-file path as its second argument. **USC-HAD is 100 Hz (Nyquist 50 Hz), whereas planned PocketLab recordings are 20 Hz (Nyquist 10 Hz)**. The introductory 0.5–3 and 3–8 Hz exploratory PSD bands are accessible in both. For next student measurements, collect acceleration XYZ + gyroscope XYZ, verify units/timestamps and use three independent Target and three independent Confusing trials; overlapping windows are not independent repetitions. Signal Processing Toolbox is required for Welch PSD, and the code has been reviewed but not executed in MATLAB.
+
 
 ## Why this is an Experimental Methods project
 
