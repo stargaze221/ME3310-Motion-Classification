@@ -91,6 +91,36 @@ Inspect the full PSD before choosing a band. The initial 0.8-3 Hz band in script
 
 ### Week 11 Canvas Page 02 — Feature Comparison, Fisher Score and LDA
 
+### Week 11 Canvas Page 05 — Uncertainty and Reliability
+
+The [Page 05 MATLAB demonstration](examples/Student_IMU/week11_05_uncertainty_demo.m)
+uses **actual USC-HAD 100-Hz original recordings and previously saved five-class SVM results**.
+It introduces (a) uncertainty in a mean *measured feature* from independent
+original trials, (b) differences across leave-one-subject-out folds, and
+(c) five-class original-trial confusion and per-class recall. No artificial
+measurements, new classifier fit, or automatic optimization.
+
+From the updated repository root, after running Page 04's step07, step08,
+and step09, run:
+
+```matlab
+addpath(fullfile(pwd,"examples","Student_IMU"));
+U = week11_05_uncertainty_demo("all");
+disp(U.featureIntervals);
+disp(U.subjectReport);
+disp(U.classRecall);
+```
+
+Or run the individual sections: `"features"`, `"subjects"`, `"errors"`.
+The student t interval is for the **mean of independent trial-level
+feature measurements for one subject**, not classification accuracy.
+Cross-validation fold scores share training subjects; a naive t-based
+confidence interval across those folds is not a valid model reliability
+guarantee. Previously viewed diagnostic subjects are not a fresh final
+test. Source data must exist locally and Statistics and Machine Learning
+Toolbox is required for the confidence interval. MATLAB execution
+verification is pending.
+
 ### Week 11 Canvas Page 03 — From Features to Machine Learning
 
 [week11_03_classifiers_demo.m](examples/Student_IMU/week11_03_classifiers_demo.m) uses **real USC-HAD Upstairs/Downstairs original trials** to compare logistic regression (`fitglm`) and a linear SVM (`fitcsvm`). It calculates the same 16 features previously extracted from overlapping windows but averages them **within each original trial before training**. One original measured trial is one observation; this is **completed-trial classification**, NOT real-time transition detection.
