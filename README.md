@@ -89,6 +89,23 @@ Inspect the full PSD before choosing a band. The initial 0.8-3 Hz band in script
 
 ### Compare two real motions in feature space (Week 11 Page 01, Section 8)
 
+### Week 11 Canvas Page 02 — Feature Comparison, Fisher Score and LDA
+
+[week11_02_fisher_lda_demo.m](examples/Student_IMU/week11_02_fisher_lda_demo.m) reuses the **measured original-trial feature table** returned by the comparison demo. It computes descriptive, trial-level **Fisher Scores**, displays feature-redundancy correlations, and shows a two-feature **regularized LDA projection** (not a fitted/tested classifier). No simulated data or automatic model optimization.
+
+After preparing the real USC-HAD recordings and window-feature file as above:
+
+```matlab
+addpath(fullfile(pwd,"examples","Student_IMU"));
+C = week11_02_feature_compare_demo(2,[1 2]);
+D = week11_02_fisher_lda_demo(C,[1 2]);
+disp(D.fisherTable);
+D = week11_02_fisher_lda_demo(C,[1 3]);
+```
+
+Subject 2 yields five original trials per class when available. Windows are first summarized within each trial, never treated as independent experimental replicates. Scores and LDA direction are explored **on the same observed data**; they are *not* estimates of prediction accuracy on a future trial or another participant. This script uses Base MATLAB for Fisher/LDA and expects Signal Processing Toolbox for the earlier feature extraction/comparison step. MATLAB runtime testing is still pending.
+
+
 The [USC-HAD trial-level comparison demo](examples/Student_IMU/week11_02_feature_compare_demo.m) visualizes Upstairs vs Downstairs using the existing **16-feature** extraction pipeline. It creates (1) two 1D feature comparisons, (2) a 2D scatter, and (3) an equally trial-weighted PSD comparison. Each dot represents **one original trial**, not one overlapping window.
 
 After cloning or pulling the repository, from its root:
