@@ -4,6 +4,33 @@ This folder provides a local MAT-file inspection and standardization layer for s
 
 ## Week 11 / Canvas Page 01: real USC-HAD measurement demonstrations
 
+**Whole trial versus the first measured sliding window (Page 01, Section 3):**
+The `"time"` mode computes Mean, sample STD, RMS, peak and jerk using
+**every sample in a single original trial**. It does not compute the
+first 3-s analysis window. The new `"timecompare"` mode makes a
+direct, apples-to-apples comparison of the **whole original trial**
+against the **first 3 seconds (300 samples at USC-HAD's 100 Hz)**
+and displays a comparison table and a figure.
+
+```matlab
+repo = gitrepo; pull(repo);  % from your existing repository root
+addpath(fullfile(pwd,"examples","Student_IMU"));
+R = week11_01_feature_demo("time","upstairs");
+disp(R.timeFeatures)               % WHOLE original trial
+C = week11_01_feature_demo("timecompare","upstairs");
+disp(C.timeComparison)              % WHOLE versus FIRST 3-s window
+D = week11_01_feature_demo("timecompare","downstairs");
+disp(D.timeComparison)
+```
+
+This demonstration analyzes only measured USC-HAD samples, without
+generating data. Both summaries refer to the SAME original trial
+and therefore are not independent experimental repetitions. Run
+`week11_01_feature_demo("windows","upstairs")` to examine multiple
+overlapping 3-s windows with 0.5-s hop. No classifier or feature
+selection is performed by the comparison command.
+
+
 ### Compare Upstairs vs Downstairs in feature space
 
 ### Week 11 Canvas Page 02 — Feature comparison, Fisher Score, LDA
