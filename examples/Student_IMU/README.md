@@ -6,6 +6,20 @@ This folder provides a local MAT-file inspection and standardization layer for s
 
 ### Compare Upstairs vs Downstairs in feature space
 
+### Week 11 Canvas Page 02 — Feature comparison, Fisher Score, LDA
+
+[week11_02_fisher_lda_demo.m](week11_02_fisher_lda_demo.m) uses the actual USC-HAD trial-summary output returned by [week11_02_feature_compare_demo.m](week11_02_feature_compare_demo.m). Run:
+
+```matlab
+C = week11_02_feature_compare_demo(2,[1 2]);
+D = week11_02_fisher_lda_demo(C,[1 2]);
+disp(D.fisherTable);
+D = week11_02_fisher_lda_demo(C,[1 3]);
+```
+
+The script compares observed class means and sample STD for all 16 features, plots one-dimensional Fisher Scores, prints correlations for the chosen pair within each class, and displays an LDA direction and projected trial points. Each data point comes from an original trial (mean of its overlapping window features); LDA uses standardized features and a small explicit numerical regularizer. This is **in-sample feature exploration**, not held-out classification performance. Repeated trials of the same person cannot establish performance on new subjects. The calculations do not automatically select the best pair; students should use physical reasoning, observations, and repeatability. No new data are fabricated. MATLAB execution has not been independently verified.
+
+
 Run the existing feature-extraction script ONCE, then plot real upstairs/downstairs data:
 
 ```matlab
